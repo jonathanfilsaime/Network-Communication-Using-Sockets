@@ -105,9 +105,27 @@ public class SocketClient {
             System.out.println("Enter your choice: ");
             Scanner str = new Scanner(System.in);
             String userChoice = str.nextLine();
+            
+            if(!(isInteger(userChoice)) || Integer.parseInt(userChoice) < 1 || Integer.parseInt(userChoice) > 7)
+            {
+                return 0;
+            }
+            
             this.i = Integer.parseInt(userChoice);
             return i;
         }
+    
+    public static boolean isInteger(String s) {
+        try {
+            Integer.parseInt(s);
+        } catch(NumberFormatException e) {
+            return false;
+        } catch(NullPointerException e) {
+            return false;
+        }
+        // only got here if we didn't return false
+        return true;
+    }
     
     
     public static void main(String[] args) 

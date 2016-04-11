@@ -9,6 +9,9 @@
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+
+
 
 class ClientWorker implements Runnable 
 {
@@ -45,8 +48,22 @@ class ClientWorker implements Runnable
                line = in.readLine();
 	 
                // Send response back to client
-               line = "Hi " + line;
-               out.println(line);
+                   if(!(isInteger(line)))
+                   {
+                       line = "Hi " + line;
+                       out.println(line);
+                   }
+                   else if(Integer.parseInt(line) < 1 || Integer.parseInt(line) > 7)
+                   {
+                       out.println("please enter a number from 1 to 7");
+                   }
+                   else
+                   {
+                       //past a int here and call a case function
+                       //************the meat will go here*******
+                       out.println(SocketThrdServer.threadArray.size());
+                   }
+                
                }
  
            }
@@ -68,6 +85,18 @@ class ClientWorker implements Runnable
       }
     
    }
+    
+    public static boolean isInteger(String s) {
+        try {
+            Integer.parseInt(s);
+        } catch(NumberFormatException e) {
+            return false;
+        } catch(NullPointerException e) {
+            return false;
+        }
+        // only got here if we didn't return false
+        return true;
+    }
 
 }
 
@@ -97,7 +126,9 @@ class SocketThrdServer
          {
                 w = new ClientWorker(server.accept());
                 Thread t = new Thread(w);
-                t.start();
+                threadArray.add(t);
+                threadArray.get(count++).start();
+
             }
         catch (IOException e)
           
@@ -120,9 +151,14 @@ class SocketThrdServer
          System.exit(-1);
       }
    }
+    
+    public static ArrayList<Thread> threadArray = new ArrayList<>();
+    public static int count = 0;
 
    public static void main(String[] args) throws IOException
    {
+       
+       
       if (args.length != 1)
       {
           System.out.println("Usage: java SocketThrdServer port");
