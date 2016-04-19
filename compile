@@ -1,0 +1,6 @@
+#!/bin/bash
+
+rm -R *class
+cd .. 
+javac Network-Communication-Using-Sockets/*java
+cd Network-Communication-Using-Sockets
