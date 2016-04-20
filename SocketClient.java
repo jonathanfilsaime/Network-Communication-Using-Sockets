@@ -245,9 +245,27 @@ public class SocketClient {
                     break;
                     
                     case 6:
+                    num = 1;
+                    temp = Integer.toString(x);
+                    out.println(temp);
+                    
+                    line = in.readLine();
+                    System.out.println(line);
+                    
+                    while ((line = in.readLine()) != "0"){
+                    System.out.println("\t " + num +". " + line);
+                        num++;
+                        if(line == "0"){
+                            break;
+                        }
+                    }
+                    System.out.println("get out of 6");
                     break;
                     
                     case 7:
+                    num = 1;
+                    temp = Integer.toString(x);
+                    out.println(temp);
                     System.exit(0);
                     break;
             }
