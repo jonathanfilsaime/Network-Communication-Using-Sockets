@@ -31,6 +31,7 @@ public class SocketClient {
     String pattern;
     Pattern r;
     Matcher m;
+    int lenghtString;
     
     
     public void communicate()
@@ -252,14 +253,16 @@ public class SocketClient {
                     line = in.readLine();
                     System.out.println(line);
                     
-                    while ((line = in.readLine()) != "0"){
-                    System.out.println("\t " + num +". " + line);
+                    line = in.readLine();
+                    lenghtString = Integer.parseInt(line);
+                    System.out.println(lenghtString);
+                    
+                    
+                    for(int i =0; i < lenghtString; i++){
+                        line = in.readLine();
+                        System.out.println("\t " + num +". " + line);
                         num++;
-                        if(line == "0"){
-                            break;
-                        }
                     }
-                    System.out.println("get out of 6");
                     break;
                     
                     case 7:

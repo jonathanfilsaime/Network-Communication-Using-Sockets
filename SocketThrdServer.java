@@ -25,6 +25,7 @@ class ClientWorker implements Runnable
     public String receiver;
     public String message;
     public ArrayList<String> ms = new ArrayList<>();
+    public int lenghtString;
    
     ClientWorker(Socket client) 
     {
@@ -48,40 +49,67 @@ class ClientWorker implements Runnable
 	       {
 		   while(true){
 		       // Receive text from client
-               
+//               System.out.println("i'm back");
 		       line = in.readLine();
+               
+               if(match(line)){
+                   System.out.println(time() +" " + "known User " + line + " is connected.");
+                   line = "Hi " + line;
+                   out.println(line);
+                   
+                   for(int i = 0; i <= SocketThrdServer.id; i++)
+                   {
+                       System.out.println(SocketThrdServer.name[i]);
+//                       if(line == SocketThrdServer.name[i])
+//                       {
+//                           myID = i;
+//                           System.out.println(myID);
+//                       }
+                   }
+                   
+               }
+             
 		        
 		       // Send response back to client
-		       if(!(isInteger(line)))
+		       else if(!(isInteger(line)))
 			   {
+                   
                    s.stop();
                    myID = SocketThrdServer.id;
                    SocketThrdServer.name[myID] = line;
+                   System.out.println(myID);
                    SocketThrdServer.online[myID] = 1;
                    
-                   System.out.println(time() +" " + "Connection by known user " + line + ".");
+                   if(line != null){
+                       System.out.println(time() +" " + "Connection by known user " + line + ".");
                    
                    
-			       line = "Hi " + line;
-                   ms.add(line);
+                       line = "Hi " + line;
+                       ms.add(line);
                    
-                   SocketThrdServer.table.put(SocketThrdServer.name[SocketThrdServer.id], ms);
+                       SocketThrdServer.table.put(SocketThrdServer.name[SocketThrdServer.id], ms);
                    
-			       out.println(line);
-                   SocketThrdServer.id++;
-                   s.go();
+                       out.println(line);
+                       SocketThrdServer.id++;
+                       s.go();
+                   }
+                   else
+                   {
+                       System.out.println("thread exited");
+                       break;
+                   }
 			   }
 		       else if(Integer.parseInt(line) < 1 || Integer.parseInt(line) > 7)
 			   {
 			       out.println("please enter a number from 1 to 7");
 			   }
 		       else
-			   {
+                {
                    s.stop();
                    exe(Integer.parseInt(line));
                    s.go();
-                   }
-			   }
+                }
+            }
                
 	       }
            catch (IOException e)
@@ -162,6 +190,7 @@ class ClientWorker implements Runnable
                 else{
                     ArrayList<String> ms1 = new ArrayList<>();
                     SocketThrdServer.id++;
+                    myID = SocketThrdServer.id;
                     SocketThrdServer.name[SocketThrdServer.id] = receiver;
                     ms1.add(message);
                     SocketThrdServer.table.put(SocketThrdServer.name[SocketThrdServer.id], ms1);
@@ -208,10 +237,13 @@ class ClientWorker implements Runnable
                 
 
                 for(int i = 0 ; i < SocketThrdServer.table.get(SocketThrdServer.name[myID]).size(); i++){
+                    lenghtString = SocketThrdServer.table.get(SocketThrdServer.name[myID]).size();
                     sentBack += (SocketThrdServer.table.get(SocketThrdServer.name[myID]).get(i) + "\n");
                 }
+                out.println(lenghtString);
                 out.println(sentBack );
-                out.println("0");
+                System.out.println(sentBack);
+                out.println('\0');
                 SocketThrdServer.table.get(SocketThrdServer.name[myID]).removeAll(ms);
                 sentBack = "";
                 System.out.println(time() +" "+ SocketThrdServer.name[myID] + " gets messages.");
@@ -219,7 +251,7 @@ class ClientWorker implements Runnable
 
                 case 7:
                 SocketThrdServer.online[myID] = 0;
-                System.out.println(time() +" "+ SocketThrdServer.name[myID] + "exits.");
+                System.out.println(time() +" "+ SocketThrdServer.name[myID] + " exits.");
                 break;
             }
         }
@@ -229,13 +261,17 @@ class ClientWorker implements Runnable
             
         }
     
-}
+    }
 
-        public String time(){
+    public String time(){
                 SimpleDateFormat localDateFormat = new SimpleDateFormat("MM/dd/yy h:mm:ss a");
                 String time = localDateFormat.format(new Date());
                 return time;
                 }
+    
+    public boolean match(String line){
+        return SocketThrdServer.table.containsKey(line);
+    }
 
 }
 
