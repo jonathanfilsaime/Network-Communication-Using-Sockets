@@ -57,7 +57,7 @@ public class SocketClient {
                     }
                     
                     if(count > 0){
-                        
+                        System.out.print(menu);
                         x = choice();
                         exe(x);
                         
