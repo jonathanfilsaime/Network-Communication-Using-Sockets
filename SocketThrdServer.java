@@ -2,6 +2,8 @@
 // Adapted from example at Sun website:
 // http://java.sun.com/developer/onlineTraining/Programming/BasicJava2/socket.html
 // 11/07/07
+//Jonathan Fils-Aime
+//4/22/2016
 
 
 
@@ -26,6 +28,7 @@ class ClientWorker implements Runnable
     public String message;
     public ArrayList<String> ms = new ArrayList<>();
     public int lenghtString;
+    public int me;
    
     ClientWorker(Socket client) 
     {
@@ -38,7 +41,7 @@ class ClientWorker implements Runnable
 	   {
 	       in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 	       out = new PrintWriter(client.getOutputStream(), true);
-	   } 
+	   }
        catch (IOException e) 
 	   {
 	       System.out.println("in or out failed");
@@ -47,75 +50,28 @@ class ClientWorker implements Runnable
 
            try
 	       {
-		   while(true){
-		       // Receive text from client
-//               System.out.println("i'm back");
+		   while(true)
+                {
+               //reas in the input form the client
 		       line = in.readLine();
                
-               if(match(line)){
-                   System.out.println(time() +" " + "known User " + line + " is connected.");
-                   line = "Hi " + line;
-                   out.println(line);
-                   
-                   for(int i = 0; i <= SocketThrdServer.id; i++)
-                   {
-                       System.out.println(SocketThrdServer.name[i]);
-//                       if(line == SocketThrdServer.name[i])
-//                       {
-//                           myID = i;
-//                           System.out.println(myID);
-//                       }
-                   }
-                   
-               }
-             
-		        
-		       // Send response back to client
-		       else if(!(isInteger(line)))
-			   {
-                   
-                   s.stop();
-                   myID = SocketThrdServer.id;
-                   SocketThrdServer.name[myID] = line;
-                   System.out.println(myID);
-                   SocketThrdServer.online[myID] = 1;
-                   
-                   if(line != null){
-                       System.out.println(time() +" " + "Connection by known user " + line + ".");
-                   
-                   
-                       line = "Hi " + line;
-                       ms.add(line);
-                   
-                       SocketThrdServer.table.put(SocketThrdServer.name[SocketThrdServer.id], ms);
-                   
-                       out.println(line);
-                       SocketThrdServer.id++;
-                       s.go();
-                   }
-                   else
-                   {
-                       System.out.println("thread exited");
-                       break;
-                   }
-			   }
-		       else if(Integer.parseInt(line) < 1 || Integer.parseInt(line) > 7)
-			   {
-			       out.println("please enter a number from 1 to 7");
-			   }
-		       else
-                {
-                   s.stop();
-                   exe(Integer.parseInt(line));
-                   s.go();
+               //if the client already exist
+               if(match(line))
+                    {
+                        didMatch(line);
+                    }
+               //if the client does not exist
+               else
+                    {
+                        didNotMatch(line);
+                    }
                 }
-            }
                
 	       }
            catch (IOException e)
 	       {
-		   System.out.println("Read failed");
-		   System.exit(-1);
+               System.out.println("Read failed");
+               System.exit(-1);
 	       }
        
       try
@@ -130,6 +86,7 @@ class ClientWorker implements Runnable
     
     }
     
+    //check if the input is an integer
     public static boolean isInteger(String s) {
         try {
             Integer.parseInt(s);
@@ -140,40 +97,118 @@ class ClientWorker implements Runnable
         }
         return true;
     }
+    
+    //check if the client already exist
+    public void didMatch(String line)
+    {
+        if(!(isInteger(line)))
+        {
+            s.stop();
+            for(int i = 0; i <= SocketThrdServer.id; i++)
+            {
+                if(SocketThrdServer.name[i] == line);
+                {
+                    me = i;
+                }
+            }
+            myID = me;
+            SocketThrdServer.name[myID] = line;
+            System.out.println(myID);
+            SocketThrdServer.online[myID] = 1;
+            
+            
+            if(line != null)
+            {
+                System.out.println(time() +" " + "Connection by known user " + line + ".");
+                out.println(line);
+                SocketThrdServer.id++;
+                s.go();
+            }
+            else
+            {
+                System.out.println("thread exited");
+            }
+        }
+        else if(Integer.parseInt(line) < 1 || Integer.parseInt(line) > 7)
+        {
+            out.println("please enter a number from 1 to 7");
+        }
+        else
+        {
+            s.stop();
+            exe(Integer.parseInt(line));
+            s.go();
+        }
+        
+    }
+    
+    //if client does not
+    public void didNotMatch(String line){
+        if(!(isInteger(line)))
+        {
+            s.stop();
+            myID = SocketThrdServer.id;
+            SocketThrdServer.name[myID] = line;
+            System.out.println(myID);
+            SocketThrdServer.online[myID] = 1;
+            
+            if(line != null)
+            {
+                System.out.println(time() +" " + "Connection by known user " + line + ".");
+                SocketThrdServer.table.put(SocketThrdServer.name[SocketThrdServer.id], ms);
+                out.println(line);
+                SocketThrdServer.id++;
+                s.go();
+            }
+            else
+            {
+                System.out.println("thread exited");
+            }
+        }
+        else if(Integer.parseInt(line) < 1 || Integer.parseInt(line) > 7)
+        {
+            out.println("please enter a number from 1 to 7");
+        }
+        else
+        {
+            s.stop();
+            exe(Integer.parseInt(line));
+            s.go();
+        }
+    }
 
+    //memu choice
     public void exe(int x){
         try{
         switch (x) {
 
+                //view all know user
                 case 1:
-                
-
-                for(int i = 0; i < SocketThrdServer.id; i++){
-                    sentBack += (SocketThrdServer.name[i] + " ");
-                    
+                for(int i = 0; i < SocketThrdServer.id; i++)
+                    {
+                            sentBack += (SocketThrdServer.name[i*2] + " ");
                     }
                     out.println(sentBack);
                     sentBack = "";
-                
-                System.out.println(time() +" "+ SocketThrdServer.name[myID] + " displays all known users.");
+                    System.out.println(time() +" "+ SocketThrdServer.name[myID] + " displays all known users.");
                 break;
-
-                case 2:
                 
-
-                for(int i = 0; i < SocketThrdServer.id; i++ ){
-                    if(SocketThrdServer.online[i] == 1){
-                    sentBack += (SocketThrdServer.name[i] + " ");
-                        }
+                //view all connected users
+                case 2:
+                for(int i = 0; i < SocketThrdServer.id; i++ )
+                {
+                    if(SocketThrdServer.online[i] == 1)
+                    {
+                        sentBack += (SocketThrdServer.name[i] + " ");
                     }
+                }
                 out.println(sentBack);
                 sentBack = "";
-                
                 System.out.println(time() +" "+ SocketThrdServer.name[myID] + " displays all connected users.");
                 break;
 
+                //send a message a specific person
                 case 3:
-                
                 out.println("name of the receiver ");
                 line = in.readLine();
                 receiver = line;
@@ -181,34 +216,35 @@ class ClientWorker implements Runnable
                 out.println("message: ");
                 line = in.readLine() ;
                 message = "From " + SocketThrdServer.name[myID] + ", " +time() + ", " + line;
-//                System.out.println(message);
                 
-                if(SocketThrdServer.table.containsKey(receiver)){
+                if(SocketThrdServer.table.containsKey(receiver))
+                {
                     SocketThrdServer.table.get(receiver).add(message);
-                System.out.println(time() +" "+ SocketThrdServer.name[myID] + " posts a message for " + receiver + ".");
+                    System.out.println(time() +" "+ SocketThrdServer.name[myID] + " posts a message for " + receiver + ".");
                 }
-                else{
+                else
+                {
                     ArrayList<String> ms1 = new ArrayList<>();
                     SocketThrdServer.id++;
-                    myID = SocketThrdServer.id;
                     SocketThrdServer.name[SocketThrdServer.id] = receiver;
-                    ms1.add(message);
-                    SocketThrdServer.table.put(SocketThrdServer.name[SocketThrdServer.id], ms1);
+                    SocketThrdServer.table.put((receiver), ms1);
+                    SocketThrdServer.table.get(receiver).add(message);
                     System.out.println(time() +" "+ SocketThrdServer.name[myID] + " posts a message for unknow user " + receiver + ".");
                 }
-                
+            
                 out.println("Message posted to " + receiver);
-                    
                 break;
 
+                //sned a message to all connected users
                 case 4:
                 out.println("message all currently connected users: ");
-                
                 line = in.readLine();
-                message = line;
+                message = "From " + SocketThrdServer.name[myID] + ", " +time() + ", " +line;
 
-                for(int i = 0 ; i < SocketThrdServer.id ; i++){
-                    if(SocketThrdServer.online[i] == 1){
+                for(int i = 0 ; i <= SocketThrdServer.id ; i++)
+                {
+                    if(SocketThrdServer.online[i] == 1)
+                    {
                         SocketThrdServer.table.get(SocketThrdServer.name[i]).add(message);
                     }
                 }
@@ -216,39 +252,41 @@ class ClientWorker implements Runnable
                 out.println("Message posted to all currently connected users." );
                 break;
 
+                //send a message to all known users
                 case 5:
                 out.println("email all users: ");
-                
-
                 line = in.readLine();
-                message = line;
-
-                for(int i = 0 ; i < SocketThrdServer.id ; i++){
-                    SocketThrdServer.table.get(SocketThrdServer.name[i]).add(message);
+                message = "From " + SocketThrdServer.name[myID] + ", " +time() + ", " + line;
+    
+                for(int i = 0 ; i <= SocketThrdServer.id ; i++)
+                {
+                    if(SocketThrdServer.name[i] != null)
+                    {
+                        SocketThrdServer.table.get(SocketThrdServer.name[i]).add(message);
                     }
-                
+                }
                 out.println("Message posted to all users. " );
-                
                 System.out.println(time() +" "+ SocketThrdServer.name[myID] + " posts a message for all known users.");
                 break;
 
+                //get your messages
                 case 6:
                 out.println("my messages: ");
                 
-
-                for(int i = 0 ; i < SocketThrdServer.table.get(SocketThrdServer.name[myID]).size(); i++){
-                    lenghtString = SocketThrdServer.table.get(SocketThrdServer.name[myID]).size();
-                    sentBack += (SocketThrdServer.table.get(SocketThrdServer.name[myID]).get(i) + "\n");
-                }
+                for(int i = 0 ; i < SocketThrdServer.table.get(SocketThrdServer.name[myID]).size(); i++)
+                    {
+                        lenghtString = SocketThrdServer.table.get(SocketThrdServer.name[myID]).size();
+                        sentBack += (SocketThrdServer.table.get(SocketThrdServer.name[myID]).get(i) + "\n");
+                    }
+                
                 out.println(lenghtString);
                 out.println(sentBack );
-                System.out.println(sentBack);
-                out.println('\0');
-                SocketThrdServer.table.get(SocketThrdServer.name[myID]).removeAll(ms);
-                sentBack = "";
+                sentBack="";
                 System.out.println(time() +" "+ SocketThrdServer.name[myID] + " gets messages.");
+                SocketThrdServer.table.get(SocketThrdServer.name[myID]).clear();
                 break;
 
+                //exit
                 case 7:
                 SocketThrdServer.online[myID] = 0;
                 System.out.println(time() +" "+ SocketThrdServer.name[myID] + " exits.");
@@ -258,17 +296,17 @@ class ClientWorker implements Runnable
         catch (IOException e)
         {
                 System.out.println("crash");
-            
         }
-    
     }
 
+    //compute the time
     public String time(){
                 SimpleDateFormat localDateFormat = new SimpleDateFormat("MM/dd/yy h:mm:ss a");
                 String time = localDateFormat.format(new Date());
                 return time;
                 }
     
+    //if the name match
     public boolean match(String line){
         return SocketThrdServer.table.containsKey(line);
     }
